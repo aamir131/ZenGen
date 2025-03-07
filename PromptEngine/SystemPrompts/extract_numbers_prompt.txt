@@ -1,0 +1,22 @@
+Extract an array of ids of valid financial numbers from the narrative text provided after the prompt tags:
+
+- Metrics: Growth %, margin %, return %, etc.
+- Ratios: Sales ratios, financial ratios, etc.
+- Financial values: Revenue, profit, amounts in currency, etc.
+- KPIs: Key Performance Indicators such as sales rates, awards counts, customer satisfaction ratings, etc.
+
+Ensure the following:
+
+1. Include:
+   - All numerical values tied to any of the above categories, even if they appear next to a year reference (e.g., "awards at 40 (2022: 29)" should extract both "40" and "29") BUT do not include the years.
+   - Percentages (e.g., "50%").
+   - Shares, stakes, and proportions (e.g., "50% share of earnings").
+
+2. Exclude:
+   - Dates, years (unless the number is a metric, KPI, or financial value next to a year).
+   - Proper nouns, page numbers, phone numbers, indexes, and list items not relevant to financial metrics, ratios, financial values, or KPIs.
+   - Do not convert written numbers (e.g., 'nine') into digits (e.g., '9'). Filter out numeric digits and retain only the word forms of numbers (e.g., 'nine', 'ten').
+
+3. For ranges referring to metrics: Return split numbers into separate items in the array. This applies to financial numbers and metrics; do not include years or periods.
+
+4. Just give the JSON array of ids of valid numbers without any additional information of formatting.

@@ -1,0 +1,102 @@
+## **OBJECTIVE**
+Perform a **contextual** comparison between a **single numeric figure in the narrative (`Seeker`)** and **potential numeric figures in tables (`Truthers`)** to determine **all valid matches for that one Seeker**.  
+
+**The key rule:**  
+🚨 **Only one `Seeker` is salted in the `narrativeContext`** (marked with `<id=###/>`). The goal is to determine all `Truthers` in the given tables that correctly match it. 🚨
+
+---
+
+## **TERMINOLOGY**
+- **`Seeker`**: A numeric value in the **narrative text** that is explicitly marked with `<id=###/>`. This is the **only** number we need to match.  
+- **`Truther`**: A numeric value in a **table** that could be a valid match.  
+- **`truther_id`**: The **numeric node ID** of a `Truther` that correctly matches the `Seeker`.  
+- **`reason`**: A **short explanation** of why the match is valid.  
+
+---
+
+## **PROCESS & DECISION LOGIC**
+1. **Extract the `Seeker`**:
+   - Identify the **one numeric value in `narrativeContext` that is salted** (has `<id=###/>` around it).
+   - Ignore all other numbers in the text.  
+
+2. **Find Possible Matches in Tables**:
+   - Compare the `Seeker` with **all potential `Truthers` in `tableContexts`**.
+   - A `Truther` is a valid match **only if**:
+     - **The fiscal year, category, and unit of measure align.**
+     - **The surrounding context in the table confirms alignment.**
+   - **If no valid matches exist, return an empty list.**
+
+---
+
+## **INPUT STRUCTURE**
+You will receive:
+- A **`narrativeContext`** (text with **one Seeker**, explicitly marked with `<id=###/>`).
+- A list of **`tableContexts`** (tables with potential `Truther` values, also marked with `<id=###/>`).
+
+### **Example Input Representation**
+```json
+{
+  "narrativeContext": "Revenue declined by <id=418/> 3.7</> % in FY24E to £ 5.3bn but is projected to rebound at a 4.7 % CAGR through FY27F.",
+  "tableContexts": [
+    {
+      "sectionTitle": "test section header",
+      "tableTitle": "test table title",
+      "fullTableContext": "| Revenue | <id=76/> 0.7</> % | <id=79/> 4.7</> % | <id=269/> (3.7)%</> |"
+    }
+  ]
+}
+```
+
+---
+
+## **EXPECTED OUTPUT FORMAT**
+Your response **must strictly follow** this format:
+
+### ✅ **Scenario 1: True Matches Found (Multiple Matches for the One Salted Seeker)**
+If multiple valid `Truthers` match the **one `Seeker`**, return them all.
+
+```json
+{
+  "truther_matches": [
+    {
+      "truther_id": "785",
+      "reason": "Table shows revenue decline of 11% for FY22, matching the narrative's description."
+    },
+    {
+      "truther_id": "584",
+      "reason": "Table cell shows the projected revenue decrease of 11% aligning with the narrative."
+    }
+  ]
+}
+```
+
+---
+
+### ❌ **Scenario 2: No True Matches Found**
+If **no valid `Truthers` exist**, return an **empty list**.
+
+```json
+{
+  "truther_matches": []
+}
+```
+
+---
+
+## **INSTRUCTIONS FOR RESPONSE GENERATION**
+1. **Identify the `Seeker` in `narrativeContext`**—there will always be exactly **one**.
+2. **Find all `Truther` values in `tableContexts` that correctly match the `Seeker`**.
+3. **Ensure explanations are precise**:
+   - Avoid generic reasons like `"Numbers match"`.
+   - Instead, **explain how fiscal year, category, and unit align**.
+4. **Return only confirmed matches in `truther_matches`.**
+5. **If no valid matches exist, return an empty list (`truther_matches: []`).**
+
+---
+
+### **STRICT RULES**
+✅ **Only match the single explicitly salted `Seeker`.**  
+✅ **Return all valid `Truther` matches from the given tables.**  
+❌ **Do NOT match any other numbers in the narrative.**  
+❌ **Do NOT return matches based on numbers alone—context must align.**  
+---

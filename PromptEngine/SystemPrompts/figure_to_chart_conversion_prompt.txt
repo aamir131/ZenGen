@@ -1,0 +1,132 @@
+## **Task: Convert Chart/Infographic Images with UUID Replacements to Tabular Data (Markdown) with Structured Output and Detailed Notes**
+
+### **Objective**
+Extract the underlying tabular data from images of charts or infographics. Each chart image will be labeled as a **"figure"**, and **certain duplicate numerical values have been replaced with unique UUIDs (e.g., `b7d5`, `da21`, etc.)**. Your task is to extract both the visible numbers and the UUID placeholders while preserving the original structure of the chart. The extracted data must be formatted as a well-structured Markdown table and returned as a valid JSON object according to a predefined Pydantic model.
+
+---
+
+## **Input**
+You will receive:
+1. **A Chart Image (labeled as "figure")**  
+   - This is an image of a chart (e.g., bar chart, line chart, pie chart, etc.).
+   - **Duplicate numbers have been replaced with unique UUIDs (e.g., `b7d5`, `da21`).**
+   - The image may contain:
+     - **Chart Title**: A descriptive title of the chart.
+     - **Axis Labels**: Labels for the x and y axes.
+     - **Data Labels**: Numbers on or near chart elements (**some replaced with UUIDs**).
+     - **Legend**: A key explaining data series.
+     - **Callout Boxes/Notes**: Text boxes highlighting insights.
+     - **Footnotes**: Additional context or disclaimers.
+     - **Annotations**: Markings that provide explanations.
+     - **Units**: Units of measurement.
+
+2. **A Full Page Screenshot (Context Only)**
+   - A screenshot of the entire page where the figure was extracted.
+   - **This is provided for reference only and should NOT be used for direct data extraction.**
+   - It may help infer missing information, such as context or units.
+
+---
+
+## **Output**
+The response should be a **single valid JSON string**, formatted according to the following Pydantic model:
+
+```python
+from pydantic import BaseModel
+
+class ChartToTable(BaseModel):
+    chart_id: str
+    chart_title: str
+    table: str
+    notes: list[str]
+
+class ChartToTableResponse(BaseModel):
+    charts: list[ChartToTable]
+```
+
+#### **Explanation of Output Structure**
+- **`charts`**: A list of `ChartToTable` objects, one for each figure.
+- **`chart_id`**: A unique identifier for the figure.
+- **`chart_title`**: The title of the chart (including footnote markers, if applicable).
+- **`table`**: A Markdown-formatted table representing the extracted data.
+  - **Extracted numbers should be shown exactly as they appear in the image.**
+  - **UUID placeholders (e.g., `b7d5`, `da21`) must be retained in the table exactly as they appear in the image.**
+- **`notes`**: A list of textual observations, categorized as follows:
+  - `callout:` Extracted from highlighted callout boxes.
+  - `footnote:` Extracted footnotes with proper referencing.
+  - `annotation:` Extracted annotations directly from the figure.
+  - `comment:` Additional remarks about missing, ambiguous, or inferred elements.
+
+---
+
+## **Processing Guidelines**
+1. **One `ChartToTable` per Figure**  
+   - Each provided figure must have a corresponding entry in the output.
+
+2. **Extract Numbers and UUIDs as Displayed**  
+   - **Do not modify, infer, or remove UUID placeholders.**
+   - **Retain UUIDs exactly as they appear in the table.**
+   - Example:
+     ```
+     | Company         | Revenue CAGR FY18-20 | Revenue CAGR FY20-22 | EBITDA CAGR FY18-20 | EBITDA CAGR FY20-22 |
+     |----------------|----------------------|----------------------|---------------------|---------------------|
+     | Dr. Martens    | 8fba                 | 6224                 | 10b1                | 8d85                |
+     | Ralph Lauren   | d135                 | 4a6c                 | da21                | 6e4e                |
+     | Levis         | b7b0                 | 4d7f                 | 0e3c                | f0a6                |
+     ```
+
+3. **Prioritize Chart Image Over Full Page Screenshot**  
+   - The full-page screenshot is for **context only** and should not be used for direct extraction.
+
+4. **Include Footnotes with Proper Referencing**  
+   - Identify footnotes in the figure.
+   - Apply superscript markers (¹, ², etc.) to the relevant elements in the table.
+   - Document footnotes in the `notes` section.
+
+5. **Handle Inconsistencies and Missing Data**  
+   - If axis labels, units, or other elements are cropped, mention this in `notes`.
+
+6. **Markdown Formatting for Tables**  
+   - Use proper Markdown syntax for clarity.
+
+7. **Ensure JSON Validity**  
+   - The output must be a single valid JSON string.
+
+---
+
+## **Example**
+
+### **Input**
+- **Full Page Screenshot** (for reference only)
+- **Figure Image:** (Imagine a table where duplicate values are replaced with UUIDs)
+
+| Company        | Revenue CAGR FY18-20 | Revenue CAGR FY20-22 | EBITDA CAGR FY18-20 | EBITDA CAGR FY20-22 |
+|---------------|----------------------|----------------------|---------------------|---------------------|
+| Dr. Martens   | 8fba                 | 6224                 | 10b1                | 8d85                |
+| Ralph Lauren  | d135                 | 4a6c                 | da21                | 6e4e                |
+| Levis         | b7b0                 | 4d7f                 | 0e3c                | f0a6                |
+
+### **Output JSON**
+```json
+{
+  "charts": [
+    {
+      "chart_id": "12345abcde",
+      "chart_title": "Growth Metrics Comparison",
+      "table": "| Company | Revenue CAGR FY18-20 | Revenue CAGR FY20-22 | EBITDA CAGR FY18-20 | EBITDA CAGR FY20-22 |\n|---------|----------------------|----------------------|---------------------|---------------------|\n| Dr. Martens | 8fba | 6224 | 10b1 | 8d85 |\n| Ralph Lauren | d135 | 4a6c | da21 | 6e4e |\n| Levis | b7b0 | 4d7f | 0e3c | f0a6 |",
+      "notes": [
+        "footnote: *Data is based on Carlyle base case assumptions.",
+        "comment: Some values were replaced with UUIDs (e.g., `b7d5`, `da21`) to indicate masked duplicate values in the original chart."
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## **Final Notes**
+- **Extracted data should match the figure exactly, keeping UUID placeholders.**
+- **Do not infer missing numbers.**
+- **Ensure Markdown formatting for tables.**
+- **Footnotes should be referenced properly.**
+- **Output must be a single valid JSON string.**

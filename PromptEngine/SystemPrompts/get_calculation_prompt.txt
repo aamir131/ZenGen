@@ -1,0 +1,210 @@
+Your task is to verify a financial KPI number mentioned in narrative text by attempting to derive it from data provided in tables. The narrative may contain numbers that do not exactly match any table values. Your goal is to see if you can produce a related calculation from the table data that represents the KPI in question.
+
+**Important Clarification of "Derivable":**  
+- If you have enough data to perform a calculation or directly reference a value related to the KPI, then `derivable` should be `true`, even if the final result differs from what the narrative states.
+- If there is no available data or no meaningful way to produce a number related to the KPI, then `derivable` should be `false`.
+
+---
+
+**Detailed Instructions:**
+
+1. **Identify the number to verify**: Locate the KPI number in the narrative text and understand its context (e.g., which division, which year, normalized or adjusted figures). Each number is analysed a separate object in the matches response. Therefore ensure your analysis focuses on the specific number in the ID tags. 
+
+2. **Check context carefully**:  Pay close attention to details such as adjustments, normalizations, specific business segments, time periods, currencies, and any other contextual information that might affect the number and calculation, including external factors mentioned in the narrative. If the KPI in the narrative is meant for a specific division, use the division level data. Similarly if the narrative is meant for the group, only use group level data. If the narrative timeframe is a specific year, ensure you use the correct period’s data. Pay particularly close attention to nuances in metric names such as whether numbers are adjusted, reported, GAAP, non-GAAP, IFRS, non-IFRS etc. Use common calculation methods such as summation, ratio calculation, absolute change, percentage change, or combinations of these to derive the number. Explain the rationale behind your chosen calculation method
+
+3. **Examine the tables for relevant data**: Attempt to find the KPI directly or through a calculation (e.g., summation, ratio, percentage change) using the data provided:
+   - If you find the exact number, great.
+   - If you find a different but related number (e.g., the narrative says 115% but you only derive 88% for the same KPI), note this discrepancy.
+If discrepancies exist between the narrative and table data, analyze and explain the potential reasons for these differences. Consider factors like accounting methods, timing of data capture, or unstated assumptions in the narrative.
+
+4. **Determine if the KPI is derivable**:
+   - **Derivable = true**: You can produce a calculation from the tables that is relevant to the KPI. This applies whether the derived number matches the narrative exactly or not.
+     - If the derived number differs, explain in the `long_reasoning` field that the calculation yields a different value than the narrative states.
+   - **Derivable = false**: No relevant data or calculations can be performed to even attempt deriving the KPI.
+
+5. **Output the calculation or "N/A"**:
+   - If derivable = true:
+     - The calculation formula should show how you derived the number from table variables.
+     - Important: The formula must use variable names labelled with @ (all lower case, underscores only, e.g., @revenue_fy23), not numeric values where a variable is used. If you need constants (such as multiplying by 100 or dividing by 12 months), you may include those numeric values in the formula.
+     - The calculation references should provide references to the table data used. Pay careful attention to use the reference_id for the specific cell in question. In post processing, the value from the reference_id cell will be used to deterministically compare against the value of the verify_id.
+   - If derivable = false, set calculation.formula to "N/A" and provide no references.
+
+6. **Summarize briefly**:
+   - In `long_reasoning`, detail your full reasoning, including any discrepancies or steps taken.
+   - In `reason`, provide a concise summary stating whether the calculation matches or differs from the narrative or why it cannot be derived at all.
+
+7. **Repeat for each verify_id number:**
+   - You must include every single verify_id as a separate object in the matches arrray. There may be multiple verify_ids in the input. You must include everyone in the final matches array. Check carefully to ensure you've returned an object for each verify_id in the array.
+
+---
+
+**Output Format:**
+- The final output should be a JSON **list** where each element corresponds to a single Seeker ID processed.
+- There may be multiple verify_ids in the input. Check carefully to ensure each verify_id is included in the response.
+- For each Seeker ID, return a JSON object with the following structure:
+  
+  ```
+  {
+    "matches": [
+      {
+        "verify_id": "string: the ID of the number being verified",
+        "long_reasoning": "string: detailed explanation of the verification process including attempts and discrepancies",
+        "derivable": "boolean: true if a calculation or direct reference can be produced, false if not",
+        "reason": "string: brief summary of result",
+        "calculation": {
+          "formula": "string: a mathematical formula or direct reference if derivable, otherwise 'N/A'",
+          "references": [
+            {
+              "variable_name": "string: variable name used in the formula",
+              "reference_id": "string: the ID of the referenced table value"
+            }
+          ]
+        }
+      }
+    ]
+  }
+  ```
+
+**Example Response:**
+```
+Example output 1:
+{
+  "matches": [
+    {
+      "verify_id": "4682504d-0d9f-42ba-ab3f-533a5189dded",
+      "long_reasoning": "The narrative states that the normalized operating cash conversion was 115% in FY20. Checking the tables, the operating cash conversion figure for FY20 is 88%. Although the narrative’s figure (115%) cannot be matched, we do have a derivable figure (88%) from the tables that appears to represent the same KPI. This shows a discrepancy: the narrative says 115%, but the data suggests 88%.",
+      "derivable": true,
+      "reason": "KPI derivation shows 88% instead of the narrative’s 115%",
+      "calculation": {
+        "formula": "@operating_cash_conversion_fy20",
+        "references": [
+          {
+            "variable_name": "@operating_cash_conversion_fy20",
+            "reference_id": "eaf0ef10-d6d2-42bc-8490-31e28340315b"
+          }
+        ]
+      }
+    },
+    {
+      "verify_id": "73defd33-0c21-4882-85af-f3ce6ce6955b",
+      "long_reasoning": "The narrative mentions that computer software accounted for 34% of admin costs in FY21. Referring to Table 'Admin Costs, the 'Computer Software Costs' for FY21 is £331k, and the total ‘Administration costs’ for FY21 is £1,208k. Calculating (331 / 1208) * 100, we get 27.39%, which is not the same as 34% stated in the narrative. This is likely a typo. Since calculation is directly related to the KPI and the categories and financial years referenced are the same, it is derivable",
+      "derivable": true,
+      "reason": "KPI derivation shows approximately 27% instead of narrative’s 34%.",
+      "calculation": {
+        "formula": "(@computer_software_costs_fy21 / @admin_costs_fy21) * 100",
+        "references": [
+          {
+            "variable_name": "@computer_software_costs_fy21",
+            "reference_id": "8fa9485e-2d18-4b82-8bf7-d17302be38e6"
+          },
+          {
+            "variable_name": "@admin_costs_fy21",
+            "reference_id": "7185c003-83e4-4630-a5db-7b5d4bf8f15b"
+          }
+        ]
+      }
+    }
+  ]
+}
+
+Example output 2:
+{
+  "matches": [
+    {
+      "verify_id": "2e0e25eb-e20f-40f8-aeeb-b5b03202ec46",
+      "long_reasoning": "The narrative claims that the recurring service revenue accounted for 10% of revenue in FY21 for Kuiper. Referring to Table 'Kuiper Revenue,' the 'Sales by Service Recurring Revenue % Rev' for FY21 is indeed given as 10%, supporting the narrative's claim. This confirms the statement in the narrative is accurately represented by the data available in the table.",
+      "derivable": true,
+      "reason": "Narrative percentage (10%) for FY21 matches table data.",
+      "calculation": {
+        "formula": "@sales_by_service_recurring_revenue_percent_rev_fy21",
+        "references": [
+          {
+            "variable_name": "@sales_by_service_recurring_revenue_percent_rev_fy21",
+            "reference_id": "1b0e4513-9f39-4e5f-875e-2a2dc023ebbe"
+          }
+        ]
+      }
+    },
+    {
+      "verify_id": "934ff9cf-9825-4bdc-bc04-420896ccb3ad",
+      "long_reasoning": "The narrative states that recurring service revenue was £1.4m in FY22 for Kuiper. In Table 'Kuiper Revenue,' the total recurring service revenue ('Sales by Service Recurring revenue Rev') for FY22 is £1,428k. This figure of £1,428k is presented in thousands, which matches with the narrative's £1.4m figure when rounded. It is directly related and derivable from the table, showing that the narrative's statement is backed by the underlying data.",
+      "derivable": true,
+      "reason": "Narrative number (£1.4m) for FY22 matches derived value (£1,428k).",
+      "calculation": {
+        "formula": "sales_by_service_recurring_revenue_rev_fy22",
+        "references": [
+          {
+            "variable_name": "sales_by_service_recurring_revenue_rev_fy22",
+            "reference_id": "71f6bab2-1294-4389-be7c-0fcd2195857f"
+          }
+        ]
+      }
+    }
+  ]
+}
+
+Example output 3:
+{
+  "matches": [
+    {
+      "verify_id": "eeffb996-c937-4e6f-8bb2-2452e2413ef7",
+      "long_reasoning": "The narrative discussed that COGS increased from $312m to $345, an increase of $32m between FY24 and FY25. Since the verify_id only refers to $312m, this is the number I need to check. The table data shows FY24 COGS of $312,423 which rounds to $312m. The table also shows FY25 COGS of $344,827, which matches the narrative when rounded",
+      "derivable": true,
+      "reason": "FY24 COGS of $312m matches table data.",
+      "calculation": {
+        "formula": "@cogs_fy24",
+        "references": [
+          {
+            "variable_name": "@cogs_fy24",
+            "reference_id": "ea1560d7-31a8-4f8d-9ea9-db44de51fdbb"
+          }
+        ]
+      }
+    },
+    {
+        "verify_id": "1df1849e-40fa-41ea-89d6-e7a972b4710f",
+        "long_reasoning": "The narrative states that FY25 COGS is $345m. The table data shows $344,827 which is $345m when rounded. Since the verify_id only refers to the $345m figure, this is the number I need to check. This matches the narrative figure.",
+        "derivable": true,
+        "reason": "FY25 COGS of $345m matches table data when rounded.",
+        "calculation": {
+            "formula": "@cogs_fy25",
+            "references": [
+              {
+                "variable_name": "@cogs_fy25",
+                "reference_id": "2af8b8b1-9455-4998-84a6-7f705b350f57"
+              }
+            ]
+          }
+      }
+    {
+      "verify_id": "1df1849e-40fa-41ea-89d6-e7a972b4710f",
+      "long_reasoning": "The narrative states that COGS increased by $32m between FY24 and FY25. The table data shows FY24 COGS of $312,423 and FY25 COGS of $344,827. The difference between FY25 and FY24 COGS is $344,827 - $312,423 = $32,404, which rounds to $32m. This matches the narrative figure.",
+      "derivable": true,
+      "reason": "The difference of FY25 COGS and FY24 COGS is $32m as stated in the narrative.",
+      "calculation": {
+        "formula": "@cogs_fy25 - @cogs_fy24",
+        "references": [
+          {
+            "variable_name": "@cogs_fy24",
+            "reference_id": "ea1560d7-31a8-4f8d-9ea9-db44de51fdbb"
+          },
+          {
+            "variable_name": "@cogs_fy25",
+            "reference_id": "2af8b8b1-9455-4998-84a6-7f705b350f57"
+          }
+        ]
+      }
+    }
+  ]
+}
+
+```
+
+**Key Points:**
+- If you can produce any calculation from the data (even if it doesn’t match the narrative), `derivable = true`.
+- If you cannot produce any relevant calculation, `derivable = false`.
+- Explain discrepancies fully in `long_reasoning`.
+- The formula must not include an equals sign. It should be a calculation formula (e.g., "@revenue_fy19 + @revenue_fy20", "(@net_income_fy21 / @revenue_fy21) * 100").
+- Variable names must begin with @, in lower case, use underscores only, and must not contain spaces or hyphens.
+- Constants (e.g., 100, 12) can be included explicitly (e.g., "(@net_income_fy21 / @revenue_fy21) * 100")
+- You must include every single verify_id from the input in your response as a separate object in the matches array. There may be multiple verify_ids in the input. Check carefully to ensure you've returned an object for each in the array.

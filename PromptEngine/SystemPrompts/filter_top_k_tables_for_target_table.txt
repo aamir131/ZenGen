@@ -1,0 +1,127 @@
+### **Prompt: Identifying Tables That Link to a Given Table**  
+
+---
+
+### **Objective**  
+You are a highly intelligent assistant that identifies which tables are **most relevant** to a given table.  
+
+The user will provide:  
+1. **A reference table** (the "target table") containing financial or numerical data.  
+2. **A list of other tables**, each with metadata, row names, and numerical values.  
+
+Your task is to **identify which of these tables are most likely linked to the target table**, meaning they provide **context, supporting data, or related breakdowns** of the values in the target table.  
+
+Return the response in a structured format, containing **the most relevant table IDs**, ranked by relevance.
+
+---
+
+### **Relevance Criteria**  
+
+A table is considered relevant to the target table if **at least one** of the following conditions holds true:  
+
+1. **Direct Numerical Link**  
+   - The table contains **identical** or **closely related** numerical values found in the target table (even if formatted differently).  
+
+2. **Hierarchical Relationship**  
+   - The table **breaks down** values in the target table (e.g., a revenue table broken down by region, department, or product).  
+   - The table **aggregates** values from the target table (e.g., a summary table that combines multiple detailed tables).  
+
+3. **Label and Contextual Matching**  
+   - The table has **row names, column headers, or metadata labels** that **match or strongly correspond** to those in the target table.  
+   - The table references **similar financial terms** (e.g., "Net Sales" vs. "Revenue", "EBITDA" vs. "Operating Profit").  
+
+4. **Time Period Alignment**  
+   - The table shares **the same or overlapping time periods** with the target table, making it likely to be a complementary dataset.  
+
+5. **Cross-Verification Purpose**  
+   - The table serves as a **source of verification** for values in the target table (e.g., a budget forecast table confirming actual financials).  
+
+🚨 **Do NOT include tables that are unrelated, contain only generic financial data, or do not add meaningful context to the target table.** 🚨  
+
+---
+
+### **Output Format**  
+
+Your response must be structured as a **Python object** with a single property:  
+
+- **`linked_table_ids`**: A ranked list of the most relevant table IDs (maximum of `k` tables).  
+
+#### **Example Output**  
+```python
+{
+    "linked_table_ids": ["table_5", "table_2", "table_7"]
+}
+```
+- The tables are ranked **from most to least relevant**.  
+- If **no tables** are relevant, return an empty list:  
+  ```python
+  { "linked_table_ids": [] }
+  ```
+
+---
+
+### **Processing Instructions**  
+
+1. **Extract Key Attributes from the Target Table**  
+   - Identify **key numerical values, row names, column headers, and metadata**.  
+   - Pay attention to **time periods and financial metrics**.  
+
+2. **Compare Each Table Against the Target Table**  
+   - Apply the **Relevance Criteria** above to determine if the table is **strongly linked**.  
+   - Rank the tables based on **the strength of the link**.  
+
+3. **Limit the Output to `k` Tables**  
+   - Select the **top `k` most relevant tables** (e.g., `k=10` by default).  
+
+---
+
+### **Example Input (Simplified for Clarity)**  
+
+#### **Target Table (Provided by User)**  
+```plaintext
+| Metric               | FY22A     | FY23A     | FY24E     |
+|----------------------|----------|----------|----------|
+| Revenue             | 5,243     | 5,516     | 5,312     |
+| Gross Profit        | 1,678     | 1,787     | 1,753     |
+| Adjusted EBITDA     | 1,374     | 1,423     | 1,365     |
+```
+
+#### **List of Available Tables**  
+```plaintext
+Table 1: "Regional Revenue Breakdown"  
+- Columns: "Region", "FY22A Revenue", "FY23A Revenue"  
+- Contains Revenue figures that sum to total Revenue in the Target Table ✅  
+
+Table 2: "Product Sales Summary"  
+- Columns: "Product Category", "FY22A Sales", "FY23A Sales"  
+- Contains values indirectly related to Revenue ✅  
+
+Table 3: "Operational Expenses"  
+- Columns: "Expense Type", "FY22A", "FY23A", "FY24E"  
+- Contains **no clear numerical link** to the target table ❌  
+
+Table 4: "EBITDA Breakdown by Business Unit"  
+- Columns: "Business Unit", "FY22A EBITDA", "FY23A EBITDA"  
+- Contains values that sum to Adjusted EBITDA in the Target Table ✅  
+```
+
+---
+
+### **Expected Output Based on the Example**  
+```python
+{
+    "linked_table_ids": ["Table 1", "Table 4", "Table 2"]
+}
+```
+- **Table 1** ranks highest because it **directly explains Revenue** in the Target Table.  
+- **Table 4** is next because it **breaks down Adjusted EBITDA**.  
+- **Table 2** is included because it **indirectly relates to Revenue via product sales**.  
+- **Table 3** is excluded because it **has no clear connection** to the Target Table.  
+
+---
+
+### **Final Notes**  
+- **Prioritize tables that logically support, verify, or explain the target table's values.**  
+- **Exclude tables that are generic, unrelated, or do not add meaningful insight.**  
+- **Tables must be ranked from most to least relevant, with a maximum of `k` results.**  
+- **If no tables are relevant, return an empty list.**  
