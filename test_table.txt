@@ -1,0 +1,43 @@
+| Profit and loss £000          | FY22  | FY23  | FY24  |
+|-------------------------------|-------|-------|-------|
+| **Revenue**                   |       |       |       |
+| Installation                  | 1,944 | 3,045 | 2,831 |
+| Sales - Quoted                | 597   | 838   | 1,146 |
+| PPM                           | 473   | 695   | 787   |
+| Callouts                      | 139   | 234   | 225   |
+| Sales                         | 20    | 20    | 2     |
+| **Total Revenue**             | 3,173 | 4,832 | 4,991 |
+| **Cost of Sales**             |       |       |       |
+| Direct Expenses               | 1,888 | 2,776 | 2,980 |
+| CIS Labour                    | 247   | 369   | 214   |
+| CIS Materials                 | 45    | 98    | 180   |
+| Plant Hire                    | 32    | 51    | 46    |
+| Subcontractors                | 53    | 59    | 9     |
+| **Total Cost of Sales**       | 2,264 | 3,353 | 3,429 |
+| **Gross Profit**              | 909   | 1,479 | 1,562 |
+| **Overheads**                 |       |       |       |
+| Motor Vehicle Costs           | 125   | 170   | 165   |
+| Hotel & Subsistence           | 78    | 96    | 101   |
+| Insurance                     | 47    | 36    | 55    |
+| Legal & Professional          | 47    | 28    | 35    |
+| Other Costs                   | 26    | 30    | 31    |
+| Rent & Rates                  | 13    | 11    | 19    |
+| IT Costs                      | 7     | 10    | 12    |
+| Other Staff Costs             | 2     | (2)   | 11    |
+| Entertainment                 | 10    | 5     | 5     |
+| Profit/Loss on disposal       | (6)   | (1)   | -     |
+| Bad Debts                     | 54    | 2     | (0)   |
+| **Total Overheads**           | 402   | 385   | 434   |
+| **Other Income**              | 1     | 9     | -     |
+| **Reported EBITDA**           | 508   | 1,103 | 1,129 |
+| **Normalised EBITDA**         | 438   | 970   | 991   |
+| **KPIs:**                     |       |       |       |
+| Revenue Growth %              | 35%   | 52%   | 3%    |
+| Install % Rev                 | 61%   | 63%   | 57%   |
+| Gross Margin %                | 29%   | 31%   | 31%   |
+| OH as % of Rev                | 13%   | 8%    | 9%    |
+| EBITDA Margin %               | 16%   | 23%   | 23%   |
+| Norm. EBITDA Margin %         | 14%   | 20%   | 20%   |
+| Subcontracts & CIS Labour as % of COS | 13%   | 13%   | 6%    |
+
+_Source: Monthly Man Accts 2021-2023 and 2024_

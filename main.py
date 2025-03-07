@@ -13,7 +13,7 @@ def write_to_file(output_file: str, generated_data: str):
 
 async def generate_content_based_on_prompt(
 project_description: str, table: str, call_transcript: str, 
-            subtitle: str, textbox_user_prompt: str, length: str) -> str:
+            topic: str, textbox_user_prompt: str, length: str) -> str:
         
         tables = [table]
         call_transcripts = [call_transcript]
@@ -22,12 +22,12 @@ project_description: str, table: str, call_transcript: str,
         project_description_data = "The project description is: " + project_description
         table_data = "Our tables are: " + "\n".join(tables)
         call_transcripts_data = "\n".join(call_transcripts)
-        subtitle_data = "Subtitle is: " + "\n" + subtitle
+        topic_data = "Topic is: " + "\n" + topic
         textbox_user_prompt_data = "textbox_user_prompt: " + "\n" + textbox_user_prompt
         document_length = "The length of the analysis is: " + length
 
         collated_data = "\n".join(
-               [project_description_data, table_data, call_transcripts_data, subtitle_data, textbox_user_prompt_data, document_length]
+               [project_description_data, table_data, call_transcripts_data, topic_data, textbox_user_prompt_data, document_length]
         )
 
         user_prompt = [{"role": "user", "content": collated_data}]
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         project_description = sys.argv[1]
         table_path = sys.argv[2]
         call_transcript_path = sys.argv[3]
-        subtitle = sys.argv[4]
+        topic = sys.argv[4]
         textbox_user_prompt = sys.argv[5]
         length = sys.argv[6]
 
@@ -50,5 +50,5 @@ if __name__ == "__main__":
 
         output_file = sys.argv[7]
 
-        generated_data = asyncio.run(generate_content_based_on_prompt(project_description, table, call_transcript, subtitle, textbox_user_prompt, length))
+        generated_data = asyncio.run(generate_content_based_on_prompt(project_description, table, call_transcript, topic, textbox_user_prompt, length))
         write_to_file(output_file, generated_data)
