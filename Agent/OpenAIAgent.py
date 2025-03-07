@@ -16,27 +16,37 @@ class OpenAIAgent(Agent):
                 )
         self.model = model
     
-    async def __call__(self, system_prompt: str, user_messages: list[dict], response_format: type[LLMResponse] | None, helicone_headers: dict) -> type[LLMResponse] | None:
+    async def __call__(self, system_prompt: str, user_messages: list[dict], response_format: type[LLMResponse], helicone_headers: dict) -> type[LLMResponse] | None:
         try:
             messages = [
                 {"role": "system", "content": system_prompt}
             ]
             messages.extend(user_messages)
 
-            if response_format:
-                response = await self._client.beta.chat.completions.parse(
-                    model=self.model,
-                    messages=messages,
-                    response_format=response_format,
-                    extra_headers=helicone_headers,
-                )
-            else:
-                response = await self._client.beta.chat.completions.parse(
-                    model=self.model,
-                    messages=messages,
-                    extra_headers=helicone_headers
-                )
+            response = await self._client.beta.chat.completions.parse(
+                model=self.model,
+                messages=messages,
+                response_format=response_format,
+                extra_headers=helicone_headers,
+            )
             return response.choices[0].message.parsed
+        except Exception as e:
+            print(f"[ERROR] Error processing prompt: {e}")
+            return None
+        
+    async def run(self, system_prompt: str, user_messages: list[dict], helicone_headers: dict) -> str:
+        try:
+            messages = [
+                {"role": "system", "content": system_prompt}
+            ]
+            messages.extend(user_messages)
+
+            response = await self._client.beta.chat.completions.parse(
+                model=self.model,
+                messages=messages,
+                extra_headers=helicone_headers,
+            )
+            return response.choices[0].message.content
         except Exception as e:
             print(f"[ERROR] Error processing prompt: {e}")
             return None
