@@ -9,12 +9,16 @@ project_description: str, tables: list[str], call_transcripts: list[str],
             subtitle: str, textbox_user_prompt: str, length: str) -> str:
 
         system_prompt = _load_file("./PromptEngine/SystemPrompt/basic_generation.txt")
+        project_description_data = "The project description is: " + project_description
         table_data = "Our tables are: " + "\n".join(tables)
         call_transcripts_data = "\n".join(call_transcripts)
         subtitle_data = "Subtitle is: " + "\n" + subtitle
         textbox_user_prompt_data = "textbox_user_prompt: " + "\n" + textbox_user_prompt
+        document_length = "The length of the analysis is: " + length
 
-        collated_data = table_data + call_transcripts_data + subtitle_data + textbox_user_prompt_data
+        collated_data = "\n".join(
+               [project_description_data, table_data, call_transcripts_data, subtitle_data, textbox_user_prompt_data, document_length]
+        )
 
         user_prompt = [{"role": "user", "content": collated_data}]
         generated_data = await gpt_4o_openai_agent(system_prompt, user_prompt, None, {})
