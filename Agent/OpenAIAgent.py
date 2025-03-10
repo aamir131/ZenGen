@@ -1,4 +1,3 @@
-from typing import Union
 from Agent.Agent import Agent, LLMResponse
 from langfuse.openai import openai
 
@@ -16,7 +15,7 @@ class OpenAIAgent(Agent):
                 )
         self.model = model
     
-    async def __call__(self, system_prompt: str, user_messages: list[dict], response_format: type[LLMResponse], helicone_headers: dict) -> type[LLMResponse] | None:
+    async def __call__(self, system_prompt: str, user_messages: list[dict], response_format: type[LLMResponse], helicone_headers: dict) -> LLMResponse | None:
         try:
             messages = [
                 {"role": "system", "content": system_prompt}

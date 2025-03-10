@@ -9,5 +9,5 @@ class Agent(ABC):
         self._helicone_api_key = helicone_api_key
 
     @abstractmethod
-    async def __call__(self, system_prompt: str, user_messages: list[dict], response_format: type[LLMResponse], helicone_headers: dict) -> type[LLMResponse] | None:
+    async def __call__(self, system_prompt: str, user_messages: list[dict], response_format: type[LLMResponse], helicone_headers: dict) -> LLMResponse | None:
         pass
