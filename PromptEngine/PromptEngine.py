@@ -54,13 +54,13 @@ class PromptEngine:
     
 
         prompt_chain = customer_prompt_chain + [{"role": "user", "content": collated_data}]
-        generated_data = await gpt_4o_openai_agent(system_prompt, prompt_chain, Answer ,{})
-        updated_prompt_chain = [*prompt_chain, {"role": "assistant", "content": generated_data}]
-        if generated_data:
-            return generated_data, updated_prompt_chain
+        answer = await gpt_4o_openai_agent(system_prompt, prompt_chain, Answer ,{})
+        if answer:
+            updated_prompt_chain = [*prompt_chain, {"role": "assistant", "content": 
+                "Analysis generated: " + answer.analysis + "\n" + "Explanation: " + answer.explanation}]
+            return answer, updated_prompt_chain
         else:
             raise Exception("No data generated")
-
 
     #@observe(capture_input=False, capture_output=False)
     #async def process_direct_match_response(self, seeker: Seeker, truthers: list[TableTruther], pdf_s3_file_name: str,
