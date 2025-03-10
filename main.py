@@ -72,7 +72,6 @@ if __name__ == "__main__":
   output_other_data_file = sys.argv[10]
   output_convo_file = sys.argv[11]
   
-
   generated_data, updated_prompt_chain = asyncio.run(generate_content_based_on_prompt(
     customer_prompt_chain, customer_prompt, project_description, table, call_transcript, topic, textbox_user_prompt, length
   ))
