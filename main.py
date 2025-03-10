@@ -7,13 +7,14 @@ from PromptEngine.PromptEngine import engine
 if __name__ == "__main__":
   customer_prompt_chain: list[dict] = load_convo_from_file(sys.argv[1])
   customer_prompt = sys.argv[2]
-  project_description = sys.argv[3]
+  project_description_path = sys.argv[3]
   table_path = sys.argv[4]
   call_transcript_path = sys.argv[5]
   topic = sys.argv[6]
   textbox_user_prompt = sys.argv[7]
   length = sys.argv[8]
 
+  project_description = load_file(project_description_path)
   table = load_file(table_path)
   call_transcript = load_file(call_transcript_path)
 
